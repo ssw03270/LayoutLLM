@@ -307,7 +307,7 @@ def generate_dataset(raw_data, room_type, task_type="remaining values", output_p
                                    f"scale3d(<FILL_x>, <FILL_y>, <FILL_z>) "
                                    f"rotateY(<FILL_deg>)\"/>")
             ##### desc
-            constraints = ""
+            constraints = {}
             for relation in description["obj_relations"]:
                 s, p, o = relation
                 if element_idx == s:
@@ -317,9 +317,12 @@ def generate_dataset(raw_data, room_type, task_type="remaining values", output_p
                     relation_text = predicate_types()[relation_index]
                     relation_text = reverse_rel(relation_text)
                     text_target_class_label = text_class_index_labels[target_index]
-                    constraint = f"        <constraint type=\"{relation_text}\" source=\"{text_class_label}\" target=\"{text_target_class_label}\"/> \n"
-                    if constraint not in constraints:
-                        constraints += constraint
+
+                    if relation_text not in constraints:
+                        constraints[relation_text] = [(text_class_label, text_target_class_label)]
+                    else:
+                        if (text_class_label, text_target_class_label) not in constraints[relation_text]:
+                            constraints[relation_text].append((text_class_label, text_target_class_label))
 
                 elif element_idx == o:
                     relation_index = p
@@ -327,13 +330,31 @@ def generate_dataset(raw_data, room_type, task_type="remaining values", output_p
 
                     relation_text = predicate_types()[relation_index]
                     text_target_class_label = text_class_index_labels[target_index]
-                    constraint = f"        <constraint type=\"{relation_text}\" source=\"{text_class_label}\" target=\"{text_target_class_label}\"/> \n"
-                    if constraint not in constraints:
-                        constraints += constraint
 
-            gt_layout_text += f"{constraints}"
+                    if relation_text not in constraints:
+                        constraints[relation_text] = [(text_class_label, text_target_class_label)]
+                    else:
+                        if (text_class_label, text_target_class_label) not in constraints[relation_text]:
+                            constraints[relation_text].append((text_class_label, text_target_class_label))
+
+            text_constraints = ""
+            for key, values in constraints.items():
+                text_source, _ = values[0]
+                text_constraint = f"        <constraint type=\"{key}\" source=\"{text_source}\" targets=["
+                for value_idx, value in enumerate(values):
+                    _, text_target = value
+                    text_constraint += f"\"{text_target}\""
+
+                    if value_idx < len(values) - 1:
+                        text_constraint += ", "
+                    else:
+                        text_constraint += "]/> \n"
+
+                text_constraints += text_constraint
+
+            gt_layout_text += f"{text_constraints}"
             gt_layout_text += f"        {gt_element_text}"
-            masked_layout_text += f"{constraints}"
+            masked_layout_text += f"{text_constraints}"
             masked_layout_text += f"        {masked_element_text}"
 
             if element_idx < element_count - 1:
@@ -348,9 +369,6 @@ def generate_dataset(raw_data, room_type, task_type="remaining values", output_p
 
         message = {"instruction": _user_prompt, "input": "", "output": _assistant_prompt, "tag": tag}
         messages.append(message)
-
-        with open(os.path.join(base_save_path, message_path), 'w', encoding='utf-8') as f:
-            f.write(json.dumps(message, ensure_ascii=False) + "\n")
 
     return messages
 
