@@ -71,7 +71,7 @@ def main():
         output = {
             "prediction": prediction,
             "ground_truth": ground_truth,
-            "instruction": test_data["instruction"],
+            "tag": test_data["tag"],
         }
         output_list.append(output)
 
