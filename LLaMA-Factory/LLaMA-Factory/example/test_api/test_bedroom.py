@@ -49,7 +49,7 @@ def main():
         api_key=args.api_key,
         base_url="http://localhost:{}/v1".format(args.api_port),
     )
-    
+
     dataset_path = os.path.join(args.data_dir_path, args.room_type + "_val_dataset.json")
     test_dataset = load_json(dataset_path)
 
@@ -70,10 +70,11 @@ def main():
 
         output = {
             "prediction": prediction,
-            "ground_truth": ground_truth
+            "ground_truth": ground_truth,
+            "instruction": test_data["instruction"],
         }
         output_list.append(output)
-    
+
     save_json(f"./{args.room_type}_prediction_file.json", output_list)
 
 if __name__ == "__main__":

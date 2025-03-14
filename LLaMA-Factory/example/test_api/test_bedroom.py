@@ -67,7 +67,7 @@ def main():
 
         prediction = result.choices[0].message.content
         ground_truth = test_data["output"]
-        #
+
         output = {
             "prediction": prediction,
             "ground_truth": ground_truth,
