@@ -93,7 +93,7 @@ checkpoint = torch.load("./objfeat_vqvae/threedfront_objfeat_vqvae_epoch_01999.p
 model.load_state_dict(checkpoint["model"])
 model.eval()
 
-test_dataset = load_json("livingroom_prediction_file.json")
+test_dataset = load_json("bedroom_prediction_file.json")
 for file_idx, test_data in enumerate(tqdm(test_dataset)):
     parse_gt = parse_html_layout(test_data["ground_truth"])
     parse_pred = parse_html_layout(test_data["prediction"])

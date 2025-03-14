@@ -367,6 +367,12 @@ def generate_dataset(raw_data, room_type, task_type="remaining values", output_p
 
         _assistant_prompt = assistant_prompt.format(code=gt_layout_text)
 
+        if not os.path.exists(tag):
+            os.makedirs(tag)
+
+        with open(os.path.join(tag, "text_instruction.txt"), "w") as f:
+            f.write(text_instruction)
+
         message = {"instruction": _user_prompt, "input": "", "output": _assistant_prompt, "tag": tag}
         messages.append(message)
 

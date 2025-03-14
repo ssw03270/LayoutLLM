@@ -70,7 +70,8 @@ def main():
 
         output = {
             "prediction": prediction,
-            "ground_truth": ground_truth
+            "ground_truth": ground_truth,
+            "content": test_data["instruction"]
         }
         output_list.append(output)
     
